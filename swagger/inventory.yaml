@@ -1,0 +1,1139 @@
+openapi: 3.0.0
+info:
+  title: Inventory Management API
+  description: API for managing products, assets, stock movements and related inventory operations
+  version: 1.0.0
+servers:
+  - url: /api/inventory
+    description: Main API server
+tags:
+  - name: Products
+    description: Product management
+  - name: Stock Movements
+    description: Stock movement tracking
+  - name: Assets
+    description: Asset management
+  - name: Asset Requests
+    description: Asset request workflow
+  - name: Master Data
+    description: Reference data and configurations
+  - name: Dashboard
+    description: Inventory analytics
+  - name: QR/Barcode
+    description: QR code and barcode operations
+  - name: Reports
+    description: Inventory reports
+
+paths:
+  /products:
+    get:
+      tags: [Products]
+      summary: Get all products
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags: [Products]
+      summary: Create new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /products/{id}:
+    get:
+      tags: [Products]
+      summary: Get product by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+    put:
+      tags: [Products]
+      summary: Update product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: Updated product
+    delete:
+      tags: [Products]
+      summary: Delete product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Product deleted
+
+  /products/{id}/barcode:
+    get:
+      tags: [QR/Barcode]
+      summary: Generate barcode for product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Barcode image
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+
+  /stock-movements:
+    get:
+      tags: [Stock Movements]
+      summary: Get all stock movements
+      responses:
+        '200':
+          description: List of stock movements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockMovement'
+    post:
+      tags: [Stock Movements]
+      summary: Create stock movement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockMovementInput'
+      responses:
+        '201':
+          description: Stock movement created
+
+  /stock-movements/{id}:
+    get:
+      tags: [Stock Movements]
+      summary: Get stock movement by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stock movement details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockMovement'
+
+  /assets:
+    get:
+      tags: [Assets]
+      summary: Get all assets
+      responses:
+        '200':
+          description: List of assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Asset'
+    post:
+      tags: [Assets]
+      summary: Create new asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetInput'
+      responses:
+        '201':
+          description: Asset created
+
+  /assets/{id}:
+    get:
+      tags: [Assets]
+      summary: Get asset by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+    put:
+      tags: [Assets]
+      summary: Update asset
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetInput'
+      responses:
+        '200':
+          description: Asset updated
+    delete:
+      tags: [Assets]
+      summary: Delete asset
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Asset deleted
+
+  /assets/{id}/qrcode-data:
+    get:
+      tags: [QR/Barcode]
+      summary: Get QR code data for asset
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: QR code data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  qrData:
+                    type: string
+
+  /assets/{id}/print-label:
+    get:
+      tags: [QR/Barcode]
+      summary: Generate printable label (PDF)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: PDF label
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /assets/{id}/transfer:
+    post:
+      tags: [Assets]
+      summary: Transfer asset to new location
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newLocationId:
+                  type: string
+      responses:
+        '200':
+          description: Asset transferred
+
+  /assets/{id}/history:
+    get:
+      tags: [Assets]
+      summary: Get asset history log
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssetHistory'
+
+  /assets/search:
+    get:
+      tags: [Assets]
+      summary: Search asset with QR code
+      parameters:
+        - in: query
+          name: qrCode
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+
+  /assets/stats:
+    get:
+      tags: [Dashboard]
+      summary: Get asset statistics
+      responses:
+        '200':
+          description: Asset stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetStats'
+
+  /assets/summary/charts:
+    get:
+      tags: [Dashboard]
+      summary: Get inventory summary charts
+      responses:
+        '200':
+          description: Chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryCharts'
+
+  /assets/movement-logs:
+    get:
+      tags: [Reports]
+      summary: Get asset movement logs
+      responses:
+        '200':
+          description: Movement logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssetMovementLog'
+
+  /assets/warranty-expiry:
+    get:
+      tags: [Reports]
+      summary: Get warranty expiry notifications
+      responses:
+        '200':
+          description: Warranty expiries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WarrantyExpiry'
+
+  /asset-requests:
+    get:
+      tags: [Asset Requests]
+      summary: Get all asset requests
+      responses:
+        '200':
+          description: List of asset requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssetRequest'
+    post:
+      tags: [Asset Requests]
+      summary: Create asset request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetRequestInput'
+      responses:
+        '201':
+          description: Request created
+
+  /asset-requests/{id}:
+    get:
+      tags: [Asset Requests]
+      summary: Get asset request by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetRequest'
+    put:
+      tags: [Asset Requests]
+      summary: Update asset request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetRequestInput'
+      responses:
+        '200':
+          description: Request updated
+    delete:
+      tags: [Asset Requests]
+      summary: Delete asset request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Request deleted
+
+  /asset-groups:
+    get:
+      tags: [Assets]
+      summary: Get all asset groups
+      responses:
+        '200':
+          description: List of asset groups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssetGroup'
+    post:
+      tags: [Assets]
+      summary: Create asset group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetGroupInput'
+      responses:
+        '201':
+          description: Group created
+
+  /asset-groups/{id}:
+    get:
+      tags: [Assets]
+      summary: Get asset group by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Group details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetGroup'
+    put:
+      tags: [Assets]
+      summary: Update asset group
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetGroupInput'
+      responses:
+        '200':
+          description: Group updated
+    delete:
+      tags: [Assets]
+      summary: Delete asset group
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Group deleted
+
+  /asset-groups/{id}/assign:
+    post:
+      tags: [Assets]
+      summary: Assign asset group
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assigneeId:
+                  type: string
+      responses:
+        '200':
+          description: Group assigned
+
+  /asset-groups/{id}/return:
+    post:
+      tags: [Assets]
+      summary: Return asset group
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Group returned
+
+  /inventory/assets/unassigned:
+    get:
+      tags: [Assets]
+      summary: Get unassigned assets
+      responses:
+        '200':
+          description: List of unassigned assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Asset'
+
+  /stock/low-alert:
+    get:
+      tags: [Reports]
+      summary: Get low stock alerts
+      responses:
+        '200':
+          description: Low stock items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LowStockAlert'
+
+  /stock/import:
+    post:
+      tags: [Reports]
+      summary: Import stock from Excel
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imported:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: string
+
+  /stock/export:
+    get:
+      tags: [Reports]
+      summary: Export stock to Excel
+      responses:
+        '200':
+          description: Excel file
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /master/categories:
+    get:
+      tags: [Master Data]
+      summary: Get product categories
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+  /master/statuses:
+    get:
+      tags: [Master Data]
+      summary: Get asset statuses
+      responses:
+        '200':
+          description: List of statuses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+
+  /master/types:
+    get:
+      tags: [Master Data]
+      summary: Get asset types
+      responses:
+        '200':
+          description: List of types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssetType'
+
+  /master/locations:
+    get:
+      tags: [Master Data]
+      summary: Get asset locations
+      responses:
+        '200':
+          description: List of locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+
+  /master/brands:
+    get:
+      tags: [Master Data]
+      summary: Get brands
+      responses:
+        '200':
+          description: List of brands
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+
+  /master/models:
+    get:
+      tags: [Master Data]
+      summary: Get all models
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Model'
+    post:
+      tags: [Master Data]
+      summary: Create model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelInput'
+      responses:
+        '201':
+          description: Model created
+
+  /master/models/{brandId}:
+    get:
+      tags: [Master Data]
+      summary: Get models by brand
+      parameters:
+        - in: path
+          name: brandId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Model'
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        sku:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        currentStock:
+          type: integer
+        lowStockThreshold:
+          type: integer
+        unit:
+          type: string
+      required: [id, sku, name]
+
+    ProductInput:
+      type: object
+      properties:
+        sku:
+          type: string
+        name:
+          type: string
+        categoryId:
+          type: string
+        initialStock:
+          type: integer
+        lowStockThreshold:
+          type: integer
+        unit:
+          type: string
+      required: [sku, name]
+
+    StockMovement:
+      type: object
+      properties:
+        id:
+          type: string
+        productId:
+          type: string
+        quantity:
+          type: integer
+        movementType:
+          type: string
+          enum: [IN, OUT, ADJUSTMENT]
+        reference:
+          type: string
+        date:
+          type: string
+          format: date-time
+      required: [productId, quantity, movementType]
+
+    StockMovementInput:
+      type: object
+      properties:
+        productId:
+          type: string
+        quantity:
+          type: integer
+        movementType:
+          type: string
+          enum: [IN, OUT, ADJUSTMENT]
+        reference:
+          type: string
+      required: [productId, quantity, movementType]
+
+    Asset:
+      type: object
+      properties:
+        id:
+          type: string
+        assetTag:
+          type: string
+        name:
+          type: string
+        modelId:
+          type: string
+        status:
+          type: string
+        locationId:
+          type: string
+        assignedTo:
+          type: string
+        purchaseDate:
+          type: string
+          format: date
+        warrantyExpiry:
+          type: string
+          format: date
+        notes:
+          type: string
+      required: [assetTag, name, modelId]
+
+    AssetInput:
+      type: object
+      properties:
+        assetTag:
+          type: string
+        name:
+          type: string
+        modelId:
+          type: string
+        statusId:
+          type: string
+        locationId:
+          type: string
+        purchaseDate:
+          type: string
+          format: date
+        warrantyExpiry:
+          type: string
+          format: date
+        notes:
+          type: string
+      required: [assetTag, name, modelId]
+
+    AssetRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        requesterId:
+          type: string
+        assetTypeId:
+          type: string
+        reason:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED, FULFILLED]
+        approvalDate:
+          type: string
+          format: date-time
+        approverId:
+          type: string
+      required: [requesterId, assetTypeId, reason]
+
+    AssetRequestInput:
+      type: object
+      properties:
+        requesterId:
+          type: string
+        assetTypeId:
+          type: string
+        reason:
+          type: string
+        urgency:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+      required: [requesterId, assetTypeId, reason]
+
+    AssetGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        assetIds:
+          type: array
+          items:
+            type: string
+        assignedTo:
+          type: string
+        assignedDate:
+          type: string
+          format: date-time
+      required: [name]
+
+    AssetGroupInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        assetIds:
+          type: array
+          items:
+            type: string
+      required: [name]
+
+    AssetStats:
+      type: object
+      properties:
+        totalAssets:
+          type: integer
+        assignedAssets:
+          type: integer
+        unassignedAssets:
+          type: integer
+        assetsByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+        assetsByType:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              count:
+                type: integer
+
+    # Additional schemas for master data and other responses
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+
+    Status:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        color:
+          type: string
+
+    AssetType:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        categoryId:
+          type: string
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        code:
+          type: string
+
+    Brand:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        brandId:
+          type: string
+        specifications:
+          type: object
+
+    ModelInput:
+      type: object
+      properties:
+        name:
+          type: string
+        brandId:
+          type: string
+        specifications:
+          type: object
+      required: [name, brandId]
+
+    # Additional response schemas
+    AssetHistory:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        action:
+          type: string
+        user:
+          type: string
+        details:
+          type: object
+
+    AssetMovementLog:
+      type: object
+      properties:
+        assetId:
+          type: string
+        fromLocation:
+          type: string
+        toLocation:
+          type: string
+        movedBy:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    WarrantyExpiry:
+      type: object
+      properties:
+        assetId:
+          type: string
+        assetName:
+          type: string
+        expiryDate:
+          type: string
+          format: date
+        daysRemaining:
+          type: integer
+
+    LowStockAlert:
+      type: object
+      properties:
+        productId:
+          type: string
+        productName:
+          type: string
+        currentStock:
+          type: integer
+        threshold:
+          type: integer
+
+    InventoryCharts:
+      type: object
+      properties:
+        statusDistribution:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+        typeDistribution:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              count:
+                type: integer
+        locationDistribution:
+          type: array
+          items:
+            type: object
+            properties:
+              location:
+                type: string
+              count:
+                type: integer

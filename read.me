@@ -1,0 +1,108 @@
+# INVENTORY & ASSET MODULE: API STRUCTURE OVERVIEW
+1. Product Management (/api/inventory/products)
+Method	Route	Description
+GET	/products	List all products (with optional filters)
+POST	/products	Add new product
+GET	/products/:id	View single product
+PUT	/products/:id	Update product
+DELETE	/products/:id	Delete product
+
+    Filters: ?category=...&brand=...&location=...&keyword=...
+
+2. Stock Movements (/api/inventory/stock-movements)
+Method	Route	Description
+GET	/stock-movements	List all stock logs (filterable)
+POST	/stock-movements	Add stock movement
+GET	/stock-movements/:id	View single stock movement
+
+    Filters: ?product_id=...&movement_type=...&date=...
+
+3. Asset Master (/api/inventory/assets)
+Method	Route	Description
+GET	/assets	List all assets with filters
+POST	/assets	Create new asset
+GET	/assets/:id	View asset by ID
+PUT	/assets/:id	Update asset
+DELETE	/assets/:id	Delete asset
+
+    Filters: ?status=...&assigned_to=...&asset_type=...&brand=...
+
+4. Asset Request (/api/inventory/asset-requests)
+Method	Route	Description
+GET	/asset-requests	List all asset requests
+POST	/asset-requests	Submit asset request
+GET	/asset-requests/:id	View request
+PUT	/asset-requests/:id	Update request
+DELETE	/asset-requests/:id	Delete request
+5. Master Data
+Route	Purpose
+/api/inventory/master/categories	
+/api/inventory/master/statuses	
+/api/inventory/master/types	
+/api/inventory/master/locations	
+All with: GET, POST, PUT, DELETE
+
+
+
+// Planned Feature Implementations for Inventory & Asset System
+
+// ========================
+// INVENTORY & ASSET FEATURES
+// ========================
+// 🔧 Asset Grouping (Set of assets)
+// - Table: asset_groups, asset_group_items
+// - Endpoints: createGroup, addAssetToGroup, removeAssetFromGroup, getGroupDetails
+
+// 🔧 Asset Transfer (User to user or location)
+// - New endpoint: transferAsset (updates assigned_to and/or location)
+// - Table log: asset_history (tracks old and new user/location)
+
+// 🔧 Asset History Tracking (audit trail)
+// - Table: asset_history
+// - Log actions like assign, return, transfer, repair, scrap
+// - Add on all relevant actions (create/update)
+
+// 🔧 QR Code Print Output (PDF or Label)
+// - Route: /assets/:id/qrcode-print
+// - Generates printable PDF using qr_data
+
+// 🔧 Barcode Generation for SKU
+// - Add barcode field to products
+// - Endpoint: getProductBarcodeData
+
+// 🔧 Low Stock Notification
+// - Compare product stock vs. min_stock_level
+// - Scheduled check + dashboard API flag
+
+// 🔧 Stock Import/Export via Excel
+// - Upload route (xlsx)
+// - Parse and bulk insert/update stock/products
+
+
+// ========================
+// REPORTING & DASHBOARD
+// ========================
+// 🔧 Inventory Summary Charts
+// - Route: /assets/summary
+// - Return category, location, status counts
+
+// 🔧 Asset Usage/Movement Logs
+// - Route: /assets/logs/daily | /monthly
+// - Use stock_movements + asset_history
+
+// 🔧 Warranty Expiry Notifications
+// - Background job: daily scan
+// - Email/SMS trigger (configurable)
+
+
+// ========================
+// CONFIGURATION
+// ========================
+// 🔧 Brands & Models Config
+// - Tables: brands, models
+// - Linked to product and asset
+// - CRUD routes: /master/brands, /master/models
+|
+
+
+npm install exceljs multer

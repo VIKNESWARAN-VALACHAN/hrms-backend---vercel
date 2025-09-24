@@ -1,0 +1,203 @@
+openapi: 3.0.0
+info:
+  title: Holidays API
+  description: API for managing public holidays
+  version: 1.0.0
+servers:
+  - url: /api/holiday
+    description: Main API server
+tags:
+  - name: Holidays
+    description: Public holidays management
+paths:
+  /:
+    get:
+      tags: [Holidays]
+      summary: Get all holidays
+      description: Returns a list of all public holidays sorted by date
+      responses:
+        '200':
+          description: A list of holidays
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Holiday'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags: [Holidays]
+      summary: Create a new holiday
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HolidayInput'
+      responses:
+        '200':
+          description: Holiday created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: ID of the created holiday
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /import:
+    post:
+      tags: [Holidays]
+      summary: Import holidays from Excel
+      description: Upload an Excel file to import multiple holidays at once
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Excel file with holidays data
+      responses:
+        '200':
+          description: Holidays imported successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "5 holidays imported."
+        '400':
+          description: No file uploaded
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /export:
+    get:
+      tags: [Holidays]
+      summary: Export holidays to Excel
+      description: Download all holidays as an Excel file
+      responses:
+        '200':
+          description: Excel file download
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{id}:
+    delete:
+      tags: [Holidays]
+      summary: Delete a holiday
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the holiday to delete
+      responses:
+        '200':
+          description: Holiday deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Holiday:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        holiday_date:
+          type: string
+          format: date
+          example: "2023-12-25"
+        title:
+          type: string
+          example: "Christmas Day"
+        description:
+          type: string
+          example: "Annual Christmas holiday"
+        location_id:
+          type: integer
+          nullable: true
+          example: 5
+        is_global:
+          type: boolean
+          example: true
+      required:
+        - holiday_date
+        - title
+
+    HolidayInput:
+      type: object
+      properties:
+        holiday_date:
+          type: string
+          format: date
+          example: "2023-12-25"
+        title:
+          type: string
+          example: "Christmas Day"
+        description:
+          type: string
+          example: "Annual Christmas holiday"
+        location_id:
+          type: integer
+          nullable: true
+          example: 5
+        is_global:
+          type: boolean
+          example: true
+      required:
+        - holiday_date
+        - title
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Failed to fetch holidays"
+        details:
+          type: string
+          example: "Database connection failed"

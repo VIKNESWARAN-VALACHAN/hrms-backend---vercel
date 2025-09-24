@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feedback Rerouted Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .container {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h2 {
+      color: #c0392b;
+    }
+    .details {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-top: 15px;
+      border-left: 4px solid #c0392b;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Feedback Rerouted to You</h2>
+    <p>Hi {{name}},</p>
+    <p>You have been reassigned to handle a feedback request.</p>
+
+    <div class="details">
+      <p><strong>Ticket ID:</strong> {{ticket_id}}</p>
+      <p><strong>Category:</strong> {{category}}</p>
+      <p><strong>Priority:</strong> {{priority}}</p>
+      <p><strong>Admin Note:</strong> {{description}}</p>
+    </div>
+
+    <p>Please log in to the HRMS system to review and respond accordingly.</p>
+
+    <div class="footer">
+      <p>Thank you,<br>HRMS Admin Team</p>
+    </div>
+  </div>
+</body>
+</html>

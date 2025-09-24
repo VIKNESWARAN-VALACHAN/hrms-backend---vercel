@@ -1,0 +1,773 @@
+openapi: 3.0.0
+info:
+  title: Payroll System API
+  description: API for managing payroll configurations, processing, and related data
+  version: 1.0.0
+servers:
+  - url: /api
+    description: Local development server
+
+paths:
+  # Payroll Config Routes
+  /payroll-config/configs:
+    get:
+      tags:
+        - Payroll Configuration
+      summary: Get all payroll configurations
+      responses:
+        '200':
+          description: A list of payroll configurations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PayrollConfig'
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - Payroll Configuration
+      summary: Create a new payroll configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayrollConfig'
+      responses:
+        '201':
+          description: Payroll configuration created successfully
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+
+  /payroll-config/configs/{id}:
+    get:
+      tags:
+        - Payroll Configuration
+      summary: Get a specific payroll configuration by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payroll configuration details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollConfig'
+        '404':
+          description: Configuration not found
+        '500':
+          description: Internal server error
+    put:
+      tags:
+        - Payroll Configuration
+      summary: Update a payroll configuration
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayrollConfig'
+      responses:
+        '200':
+          description: Payroll configuration updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Configuration not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Payroll Configuration
+      summary: Delete a payroll configuration
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Configuration deleted successfully
+        '404':
+          description: Configuration not found
+        '500':
+          description: Internal server error
+
+  # Payroll Processing Routes
+  /payroll/process:
+    post:
+      tags:
+        - Payroll Processing
+      summary: Process payroll for employees
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                periodStart:
+                  type: string
+                  format: date
+                  description: Start date of payroll period
+                periodEnd:
+                  type: string
+                  format: date
+                  description: End date of payroll period
+                employeeIds:
+                  type: array
+                  items:
+                    type: string
+                  description: List of employee IDs to process (empty for all)
+      responses:
+        '202':
+          description: Payroll processing started
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+
+  # Allowance Master Routes
+  /master-data/allowances:
+    get:
+      tags:
+        - Allowance Master
+      summary: Get all allowances
+      responses:
+        '200':
+          description: A list of allowances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allowance'
+    post:
+      tags:
+        - Allowance Master
+      summary: Create a new allowance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Allowance'
+      responses:
+        '201':
+          description: Allowance created successfully
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+
+  /master-data/allowances/{id}:
+    put:
+      tags:
+        - Allowance Master
+      summary: Update an allowance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Allowance'
+      responses:
+        '200':
+          description: Allowance updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Allowance not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Allowance Master
+      summary: Delete an allowance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Allowance deleted successfully
+        '404':
+          description: Allowance not found
+        '500':
+          description: Internal server error
+
+  /master-data/allowances/export:
+    get:
+      tags:
+        - Allowance Master
+      summary: Export allowances data
+      responses:
+        '200':
+          description: Allowances data exported
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allowance'
+        '500':
+          description: Internal server error
+
+  # Deduction Master Routes
+  /master-data/deductions:
+    get:
+      tags:
+        - Deduction Master
+      summary: Get all deductions
+      responses:
+        '200':
+          description: A list of deductions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deduction'
+    post:
+      tags:
+        - Deduction Master
+      summary: Create a new deduction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Deduction'
+      responses:
+        '201':
+          description: Deduction created successfully
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+
+  /master-data/deductions/{id}:
+    put:
+      tags:
+        - Deduction Master
+      summary: Update a deduction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Deduction'
+      responses:
+        '200':
+          description: Deduction updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Deduction not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Deduction Master
+      summary: Delete a deduction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deduction deleted successfully
+        '404':
+          description: Deduction not found
+        '500':
+          description: Internal server error
+
+  /master-data/deductions/export:
+    get:
+      tags:
+        - Deduction Master
+      summary: Export deductions data
+      responses:
+        '200':
+          description: Deductions data exported
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deduction'
+        '500':
+          description: Internal server error
+
+  # Relief Categories Routes
+  /master-data/reliefs:
+    get:
+      tags:
+        - Relief Categories
+      summary: Get all relief categories
+      responses:
+        '200':
+          description: A list of relief categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Relief'
+    post:
+      tags:
+        - Relief Categories
+      summary: Create a new relief category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Relief'
+      responses:
+        '201':
+          description: Relief category created successfully
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+
+  /master-data/reliefs/{id}:
+    put:
+      tags:
+        - Relief Categories
+      summary: Update a relief category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Relief'
+      responses:
+        '200':
+          description: Relief category updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Relief category not found
+        '500':
+          description: Internal server error
+
+  /master-data/reliefs/{id}/toggle:
+    patch:
+      tags:
+        - Relief Categories
+      summary: Toggle relief category status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Relief category status toggled successfully
+        '404':
+          description: Relief category not found
+        '500':
+          description: Internal server error
+
+  /master-data/reliefs/export:
+    get:
+      tags:
+        - Relief Categories
+      summary: Export relief categories data
+      responses:
+        '200':
+          description: Relief categories data exported
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Relief'
+        '500':
+          description: Internal server error
+
+  # Version Control Routes
+  /master-data/version-logs:
+    get:
+      tags:
+        - Version Control
+      summary: Get version logs
+      responses:
+        '200':
+          description: A list of version logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VersionLog'
+        '500':
+          description: Internal server error
+
+  # Employee Salary Routes
+  /employee-salaries/salaries:
+    get:
+      tags:
+        - Employee Salaries
+      summary: Get all employee salaries
+      responses:
+        '200':
+          description: A list of employee salaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeSalary'
+    post:
+      tags:
+        - Employee Salaries
+      summary: Create a new employee salary record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeSalary'
+      responses:
+        '201':
+          description: Employee salary record created successfully
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+
+  /employee-salaries/employees/{employeeId}/salaries:
+    get:
+      tags:
+        - Employee Salaries
+      summary: Get salaries for a specific employee
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of salary records for the employee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeSalary'
+        '404':
+          description: Employee not found
+        '500':
+          description: Internal server error
+
+  /employee-salaries/salaries/{id}:
+    put:
+      tags:
+        - Employee Salaries
+      summary: Update an employee salary record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeSalary'
+      responses:
+        '200':
+          description: Employee salary record updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Salary record not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Employee Salaries
+      summary: Delete an employee salary record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Salary record deleted successfully
+        '404':
+          description: Salary record not found
+        '500':
+          description: Internal server error
+
+  /employee-salaries/salaries/export:
+    get:
+      tags:
+        - Employee Salaries
+      summary: Export employee salaries data
+      responses:
+        '200':
+          description: Employee salaries data exported
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeSalary'
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    PayrollConfig:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        configName:
+          type: string
+          description: Name of the configuration
+        configValue:
+          type: string
+          description: Value of the configuration
+        description:
+          type: string
+          description: Description of the configuration
+        isActive:
+          type: boolean
+          description: Whether the configuration is active
+      required:
+        - configName
+        - configValue
+        - isActive
+
+    Allowance:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        allowanceName:
+          type: string
+          description: Name of the allowance
+        allowanceType:
+          type: string
+          enum: [fixed, percentage]
+          description: Type of allowance calculation
+        amount:
+          type: number
+          description: Fixed amount or percentage value
+        isTaxable:
+          type: boolean
+          description: Whether the allowance is taxable
+        description:
+          type: string
+          description: Description of the allowance
+      required:
+        - allowanceName
+        - allowanceType
+        - amount
+        - isTaxable
+
+    Deduction:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        deductionName:
+          type: string
+          description: Name of the deduction
+        deductionType:
+          type: string
+          enum: [fixed, percentage]
+          description: Type of deduction calculation
+        amount:
+          type: number
+          description: Fixed amount or percentage value
+        isTaxExempt:
+          type: boolean
+          description: Whether the deduction is tax exempt
+        description:
+          type: string
+          description: Description of the deduction
+      required:
+        - deductionName
+        - deductionType
+        - amount
+        - isTaxExempt
+
+    Relief:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        reliefName:
+          type: string
+          description: Name of the relief category
+        reliefCode:
+          type: string
+          description: Code for the relief category
+        reliefAmount:
+          type: number
+          description: Amount or percentage for the relief
+        isActive:
+          type: boolean
+          description: Whether the relief is active
+        description:
+          type: string
+          description: Description of the relief
+      required:
+        - reliefName
+        - reliefCode
+        - reliefAmount
+        - isActive
+
+    VersionLog:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        entityType:
+          type: string
+          description: Type of entity that was modified
+        entityId:
+          type: string
+          description: ID of the entity that was modified
+        action:
+          type: string
+          enum: [create, update, delete]
+          description: Type of action performed
+        changedBy:
+          type: string
+          description: User who made the change
+        changedAt:
+          type: string
+          format: date-time
+          description: When the change was made
+        previousData:
+          type: object
+          description: Previous state of the entity
+        newData:
+          type: object
+          description: New state of the entity
+
+    EmployeeSalary:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        employeeId:
+          type: string
+          description: ID of the employee
+        basicSalary:
+          type: number
+          description: Basic salary amount
+        allowances:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalaryAllowance'
+        deductions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalaryDeduction'
+        effectiveFrom:
+          type: string
+          format: date
+          description: Date from which this salary is effective
+        effectiveTo:
+          type: string
+          format: date
+          description: Date until which this salary is effective (null for current)
+        isActive:
+          type: boolean
+          description: Whether this salary record is active
+      required:
+        - employeeId
+        - basicSalary
+        - effectiveFrom
+        - isActive
+
+    SalaryAllowance:
+      type: object
+      properties:
+        allowanceId:
+          type: string
+          description: ID of the allowance from master
+        amount:
+          type: number
+          description: Amount for this allowance
+        isTaxable:
+          type: boolean
+          description: Whether this allowance is taxable
+      required:
+        - allowanceId
+        - amount
+        - isTaxable
+
+    SalaryDeduction:
+      type: object
+      properties:
+        deductionId:
+          type: string
+          description: ID of the deduction from master
+        amount:
+          type: number
+          description: Amount for this deduction
+        isTaxExempt:
+          type: boolean
+          description: Whether this deduction is tax exempt
+      required:
+        - deductionId
+        - amount
+        - isTaxExempt

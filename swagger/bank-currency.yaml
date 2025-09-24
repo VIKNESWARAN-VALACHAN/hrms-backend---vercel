@@ -1,0 +1,437 @@
+openapi: 3.0.0
+info:
+  title: Bank Currency Management API
+  description: API for managing banks, currency codes, and exchange rates
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+tags:
+  - name: Banks
+    description: Operations related to bank management
+  - name: Currency Codes
+    description: Operations related to currency codes
+  - name: Currency Rates
+    description: Operations related to exchange rates
+paths:
+  /banks:
+    get:
+      tags: [Banks]
+      summary: Get all banks
+      responses:
+        '200':
+          description: List of banks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bank'
+        '500':
+          description: Failed to fetch banks
+    post:
+      tags: [Banks]
+      summary: Add a new bank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddBankRequest'
+      responses:
+        '200':
+          description: Bank added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to add bank
+  /banks/{id}:
+    put:
+      tags: [Banks]
+      summary: Update a bank
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBankRequest'
+      responses:
+        '200':
+          description: Bank updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to update bank
+    delete:
+      tags: [Banks]
+      summary: Delete a bank
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bank deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to delete bank
+  /currencies:
+    get:
+      tags: [Currency Codes]
+      summary: Get all currency codes
+      responses:
+        '200':
+          description: List of currency codes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Currency'
+        '500':
+          description: Failed to fetch currencies
+    post:
+      tags: [Currency Codes]
+      summary: Add a new currency code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCurrencyRequest'
+      responses:
+        '200':
+          description: Currency added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to add currency
+  /currencies/{id}:
+    put:
+      tags: [Currency Codes]
+      summary: Update a currency code
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCurrencyRequest'
+      responses:
+        '200':
+          description: Currency updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to update currency
+    delete:
+      tags: [Currency Codes]
+      summary: Delete a currency code
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Currency deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to delete currency
+  /rates:
+    get:
+      tags: [Currency Rates]
+      summary: Get all currency rates
+      responses:
+        '200':
+          description: List of currency rates retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CurrencyRate'
+        '500':
+          description: Failed to fetch currency rates
+    post:
+      tags: [Currency Rates]
+      summary: Add a new currency rate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddRateRequest'
+      responses:
+        '200':
+          description: Rate added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to add rate
+  /rates/{id}:
+    put:
+      tags: [Currency Rates]
+      summary: Update a currency rate
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRateRequest'
+      responses:
+        '200':
+          description: Rate updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to update rate
+    delete:
+      tags: [Currency Rates]
+      summary: Delete a currency rate
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rate deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Failed to delete rate
+components:
+  schemas:
+    Bank:
+      type: object
+      properties:
+        id:
+          type: integer
+        bank_name:
+          type: string
+        currency_code:
+          type: string
+          default: MYR
+        type:
+          type: string
+        status:
+          type: string
+    AddBankRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the bank
+        currency_code:
+          type: string
+          default: MYR
+        type:
+          type: string
+        status:
+          type: string
+    UpdateBankRequest:
+      type: object
+      required:
+        - name
+        - currency_code
+      properties:
+        name:
+          type: string
+        currency_code:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+    Currency:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+    AddCurrencyRequest:
+      type: object
+      required:
+        - code
+        - name
+      properties:
+        code:
+          type: string
+          description: Currency code (e.g., USD, EUR)
+        name:
+          type: string
+          description: Currency name
+        status:
+          type: string
+    UpdateCurrencyRequest:
+      type: object
+      required:
+        - code
+        - name
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+    CurrencyRate:
+      type: object
+      properties:
+        id:
+          type: integer
+        bank_id:
+          type: integer
+        from_code:
+          type: string
+        to_code:
+          type: string
+        rate:
+          type: number
+          format: float
+        effective_date:
+          type: string
+          format: date-time
+        expiry_date:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        is_expired:
+          type: boolean
+        bank_name:
+          type: string
+        to_currency_name:
+          type: string
+    AddRateRequest:
+      type: object
+      required:
+        - bank_id
+        - to_code
+        - rate
+        - effective_date
+      properties:
+        bank_id:
+          type: integer
+        to_code:
+          type: string
+        rate:
+          type: number
+          format: float
+        effective_date:
+          type: string
+          format: date-time
+        expiry_date:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+    UpdateRateRequest:
+      type: object
+      required:
+        - rate
+        - effective_date
+      properties:
+        rate:
+          type: number
+          format: float
+        effective_date:
+          type: string
+          format: date-time
+        expiry_date:
+          type: string
+          format: date-time
+        is_expired:
+          type: boolean
+        updated_by:
+          type: string
+        bank_id:
+          type: integer

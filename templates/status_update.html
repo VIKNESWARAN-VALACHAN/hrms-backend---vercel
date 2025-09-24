@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Feedback Status Update</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .container {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    .info {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-top: 15px;
+      border-left: 4px solid #007bff;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Feedback Status Updated</h2>
+    <p>Hi {{name}},</p>
+    <p>The status of your feedback (Ticket ID: <strong>{{ticket_id}}</strong>) has been updated.</p>
+
+    <div class="info">
+      <p><strong>New Status:</strong> {{status}}</p>
+    </div>
+
+    <p>If you have further questions, feel free to follow up with our support team.</p>
+
+    <div class="footer">
+      <p>Thank you,<br>HRMS Team</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Leave Cancelled</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:#111827; background:#f9fafb; margin:0; padding:24px; }
+    .card { max-width:560px; margin:0 auto; border:1px solid #e5e7eb; border-radius:12px; background:#fff; padding:24px; }
+    .h1 { margin:0 0 8px; font-size:22px; }
+    .muted { color:#6b7280; font-size:13px; }
+    .btn { display:inline-block; padding:10px 16px; background:#111827; color:#ffffff !important; text-decoration:none; border-radius:8px; }
+    .row { margin:8px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 class="h1">Leave Cancelled</h1>
+    <p>Dear {{employeeName}},</p>
+    <p>Your leave request for <strong>{{leaveType}}</strong> from <strong>{{startDate}}</strong> to <strong>{{endDate}}</strong> has been cancelled.</p>
+    <div class="row"><strong>Reason:</strong> {{reason}}</div>
+    <p>If you didn’t request this cancellation or believe it’s a mistake, please contact HR.</p>
+    <p>
+      <a class="btn" href="{{portalUrl}}" target="_blank" rel="noreferrer">View Request</a>
+    </p>
+    <p class="muted">Best regards,<br>{{companyName}} HR Team</p>
+  </div>
+</body>
+</html>

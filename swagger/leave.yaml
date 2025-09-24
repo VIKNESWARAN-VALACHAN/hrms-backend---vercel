@@ -1,0 +1,757 @@
+openapi: 3.0.0
+info:
+  title: HRMS Leave Management API
+  description: API documentation for the Leave Management System
+  version: 1.0.0
+
+servers:
+  - url: /api/v1
+    description: API v1
+
+components:
+  schemas:
+    LeaveType:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the leave type
+        leave_type_name:
+          type: string
+          description: Name of the leave type
+        description:
+          type: string
+          description: Description of the leave type
+        default_days:
+          type: integer
+          description: Default number of days allocated for this leave type
+        is_paid:
+          type: boolean
+          description: Whether this leave type is paid
+        requires_approval:
+          type: boolean
+          description: Whether this leave type requires approval
+        color_code:
+          type: string
+          description: Color code for calendar display
+        max_consecutive_days:
+          type: integer
+          description: Maximum number of consecutive days allowed
+        min_notice_days:
+          type: integer
+          description: Minimum notice period required in days
+        max_advance_days:
+          type: integer
+          description: Maximum days in advance for application
+        allowed_frequency:
+          type: string
+          description: Allowed frequency of this leave type
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LeaveApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+        employee_id:
+          type: integer
+        leave_type_id:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        duration:
+          type: integer
+        reason:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+        approver_id:
+          type: integer
+        approval_date:
+          type: string
+          format: date-time
+        approval_comment:
+          type: string
+        rejection_reason:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    LeaveBalance:
+      type: object
+      properties:
+        id:
+          type: integer
+        employee_id:
+          type: integer
+        leave_type_id:
+          type: integer
+        year:
+          type: integer
+        total_days:
+          type: integer
+        used_days:
+          type: integer
+        remaining_days:
+          type: integer
+
+    LeaveNotification:
+      type: object
+      properties:
+        id:
+          type: integer
+        leave_application_id:
+          type: integer
+        recipient_id:
+          type: integer
+        notification_type:
+          type: string
+          enum: [APPROVAL_REQUIRED, APPROVED, REJECTED]
+        message:
+          type: string
+        is_read:
+          type: boolean
+        read_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+paths:
+  /leave-types:
+    get:
+      summary: Get all leave types
+      description: Retrieve a list of all leave types with their usage statistics
+      responses:
+        '200':
+          description: List of leave types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveType'
+        '500':
+          description: Server error
+    post:
+      summary: Create a new leave type
+      description: Create a new leave type with the provided details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveType'
+      responses:
+        '201':
+          description: Leave type created successfully
+        '400':
+          description: Invalid input
+        '500':
+          description: Server error
+
+  /leave-types/{id}:
+    get:
+      summary: Get leave type by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leave type details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveType'
+        '404':
+          description: Leave type not found
+        '500':
+          description: Server error
+    put:
+      summary: Update leave type
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveType'
+      responses:
+        '200':
+          description: Leave type updated successfully
+        '404':
+          description: Leave type not found
+        '500':
+          description: Server error
+    delete:
+      summary: Delete leave type
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leave type deleted successfully
+        '400':
+          description: Cannot delete leave type in use
+        '404':
+          description: Leave type not found
+        '500':
+          description: Server error
+
+  /leave-types/stats:
+    get:
+      summary: Get leave type statistics
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+          description: Year for statistics (defaults to current year)
+      responses:
+        '200':
+          description: Leave type statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    leave_type_name:
+                      type: string
+                    total_applications:
+                      type: integer
+                    approved_applications:
+                      type: integer
+                    rejected_applications:
+                      type: integer
+                    pending_applications:
+                      type: integer
+                    total_days_approved:
+                      type: integer
+                    unique_employees:
+                      type: integer
+        '500':
+          description: Server error
+
+  /leave-types/bulk/update:
+    put:
+      summary: Bulk update leave types
+      description: Update multiple leave types in a single request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                leaveTypes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: Unique identifier for the leave type
+                      leave_type_name:
+                        type: string
+                        description: Name of the leave type
+                      code:
+                        type: string
+                        description: Code for the leave type
+                      description:
+                        type: string
+                        description: Description of the leave type
+                      max_days:
+                        type: integer
+                        description: Maximum number of days allowed
+                      requires_approval:
+                        type: boolean
+                        description: Whether this leave type requires approval
+                      requires_documentation:
+                        type: boolean
+                        description: Whether this leave type requires documentation
+                      is_active:
+                        type: boolean
+                        description: Whether this leave type is active
+                      company_id:
+                        type: integer
+                        description: Company ID this leave type belongs to
+      responses:
+        '200':
+          description: Bulk update results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  results:
+                    type: object
+                    properties:
+                      successCount:
+                        type: integer
+                      failureCount:
+                        type: integer
+                      successful:
+                        type: array
+                        items:
+                          type: integer
+                      failed:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            error:
+                              type: string
+        '400':
+          description: Invalid input
+        '500':
+          description: Server error
+
+  /leave-types/bulk/create:
+    post:
+      summary: Bulk create leave types
+      description: Create multiple leave types in a single request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                leaveTypes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      leave_type_name:
+                        type: string
+                        description: Name of the leave type
+                      code:
+                        type: string
+                        description: Code for the leave type (will be auto-generated if not provided)
+                      description:
+                        type: string
+                        description: Description of the leave type
+                      max_days:
+                        type: integer
+                        description: Maximum number of days allowed
+                      requires_approval:
+                        type: boolean
+                        description: Whether this leave type requires approval
+                      requires_documentation:
+                        type: boolean
+                        description: Whether this leave type requires documentation
+                      is_active:
+                        type: boolean
+                        description: Whether this leave type is active
+                      company_id:
+                        type: integer
+                        description: Company ID this leave type belongs to
+      responses:
+        '201':
+          description: Bulk creation results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  results:
+                    type: object
+                    properties:
+                      successCount:
+                        type: integer
+                      failureCount:
+                        type: integer
+                      successful:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            leave_type_name:
+                              type: string
+                      failed:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            leave_type_name:
+                              type: string
+                            error:
+                              type: string
+        '400':
+          description: Invalid input
+        '500':
+          description: Server error
+
+  /leaves:
+    get:
+      summary: Get all leave applications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, APPROVED, REJECTED]
+        - name: employeeId
+          in: query
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: departmentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of leave applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveApplication'
+        '500':
+          description: Server error
+    post:
+      summary: Create new leave application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveApplication'
+      responses:
+        '201':
+          description: Leave application created successfully
+        '400':
+          description: Invalid input or insufficient balance
+        '500':
+          description: Server error
+
+  /leaves/{id}:
+    get:
+      summary: Get leave application by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leave application details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveApplication'
+        '404':
+          description: Leave application not found
+        '500':
+          description: Server error
+
+  /leaves/{id}/approve:
+    post:
+      summary: Approve leave application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approver_id:
+                  type: integer
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: Leave application approved successfully
+        '400':
+          description: Invalid status or insufficient balance
+        '404':
+          description: Leave application not found
+        '500':
+          description: Server error
+
+  /leaves/{id}/reject:
+    post:
+      summary: Reject leave application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approver_id:
+                  type: integer
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Leave application rejected successfully
+        '400':
+          description: Invalid status
+        '404':
+          description: Leave application not found
+        '500':
+          description: Server error
+
+  /leaves/balance:
+    get:
+      summary: Get leave balance
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leave balance details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveBalance'
+        '500':
+          description: Server error
+
+  /leaves/calendar:
+    get:
+      summary: Get leave calendar events
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: departmentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Calendar events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    event_date:
+                      type: string
+                      format: date
+                    employee_name:
+                      type: string
+                    department_name:
+                      type: string
+                    leave_type_name:
+                      type: string
+        '500':
+          description: Server error
+
+  /leaves/notifications:
+    get:
+      summary: Get leave notifications
+      parameters:
+        - name: recipientId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: isRead
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveNotification'
+        '500':
+          description: Server error
+
+  /leaves/notifications/{id}/status:
+    put:
+      summary: Update notification status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isRead:
+                  type: boolean
+      responses:
+        '200':
+          description: Notification status updated successfully
+        '404':
+          description: Notification not found
+        '500':
+          description: Server error
+
+  /leaves/{id}/documents:
+    get:
+      summary: Get leave documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    document_url:
+                      type: string
+                    document_type:
+                      type: string
+        '500':
+          description: Server error
+    post:
+      summary: Upload leave documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documents:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                      type:
+                        type: string
+      responses:
+        '200':
+          description: Documents uploaded successfully
+        '500':
+          description: Server error
+
+  /leaves/generate-sample:
+    post:
+      summary: Generate sample leave applications
+      description: Generates 100 sample leave applications with random data, including calendar events and notifications
+      responses:
+        '201':
+          description: Sample leave applications generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Sample leave applications generated successfully
+                  count:
+                    type: integer
+                    example: 100
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Error generating sample leave applications 
